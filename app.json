@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "StockSage",
+    "slug": "stocksage",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "stocksage",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "StockSage uses the camera to scan product barcodes."
+      }
+    },
+    "android": {
+      "permissions": [
+        "CAMERA"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "StockSage uses the camera to scan product barcodes."
+        }
+      ],
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
