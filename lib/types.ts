@@ -18,6 +18,16 @@ export interface Forecast {
   lastComputedAt: number;
 }
 
+// A vendor products are reordered from. `leadTimeDays` is how long a placed
+// order takes to arrive — the key input that turns "predicted stock-out" into
+// "order-by date" in the Restock Copilot.
+export interface Supplier {
+  id: string;
+  name: string;
+  leadTimeDays: number;
+  contact: string | null;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -29,6 +39,7 @@ export interface Product {
   costPrice: number;
   sellingPrice: number;
   reorderThreshold: number;
+  supplierId?: string | null; // vendor this product is reordered from
   forecast?: Forecast;
   createdAt: number;
   updatedAt: number;

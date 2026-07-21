@@ -45,6 +45,10 @@ function RootNavigator() {
       <Stack.Protected guard={!!user}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
+          name="restock"
+          options={{ headerShown: true, title: "Restock Copilot" }}
+        />
+        <Stack.Screen
           name="product/[id]"
           options={{ headerShown: true, title: "Product" }}
         />

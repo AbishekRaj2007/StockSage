@@ -18,16 +18,18 @@ import {
   AlertType,
   EnrichedProduct,
   Product,
+  Supplier,
   Transaction,
   TransactionType,
 } from "./types";
-import { makeSeedData, DEMO_USER } from "./mockData";
+import { makeSeedData, DEMO_USER, SUPPLIERS } from "./mockData";
 import {
   computeForecast,
   daysUntilStockout,
   urgencyFor,
   URGENCY_WINDOW_DAYS,
 } from "./forecast";
+import { buildRestockPlan, RestockPlan } from "./restock";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -61,7 +63,11 @@ interface DataContextValue {
   alerts: AlertModel[];
   stats: DashboardStats;
   categories: string[];
+  suppliers: Supplier[];
+  /** Forecast-driven reorder suggestions grouped into supplier purchase orders. */
+  restockPlan: RestockPlan;
   getProduct: (id: string) => EnrichedProduct | undefined;
+  getSupplier: (id: string | null | undefined) => Supplier | undefined;
   getByBarcode: (barcode: string) => EnrichedProduct | undefined;
   productTransactions: (id: string) => Transaction[];
   addProduct: (input: ProductInput) => EnrichedProduct;
@@ -74,6 +80,11 @@ interface DataContextValue {
     quantity: number;
     note?: string | null;
   }) => void;
+  /** Receives a purchase order: batches stock-in for every line at once. */
+  receiveStock: (
+    items: { productId: string; quantity: number }[],
+    note?: string
+  ) => void;
   resolveAlert: (key: string) => void;
 }
 
@@ -168,6 +179,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     [products]
   );
 
+  // Reorder plan recomputes live off the enriched (forecast-carrying) products.
+  const restockPlan = useMemo(
+    () => buildRestockPlan(enriched, SUPPLIERS, Date.now()),
+    [enriched]
+  );
+
   // Derived alerts (kept live rather than persisted, since there's no backend).
   const alerts: AlertModel[] = useMemo(() => {
     const now = Date.now();
@@ -240,6 +257,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const getProduct = useCallback(
     (id: string) => enriched.find((p) => p.id === id),
     [enriched]
+  );
+
+  const getSupplier = useCallback(
+    (id: string | null | undefined) =>
+      id ? SUPPLIERS.find((s) => s.id === id) : undefined,
+    []
   );
 
   const getByBarcode = useCallback(
@@ -341,6 +364,44 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  const receiveStock = useCallback(
+    (items: { productId: string; quantity: number }[], note?: string) => {
+      const now = Date.now();
+      const valid = items
+        .map((it) => ({ ...it, quantity: Math.round(it.quantity) }))
+        .filter(
+          (it) =>
+            it.quantity > 0 &&
+            productsRef.current.some((p) => p.id === it.productId)
+        );
+      if (valid.length === 0) return;
+
+      // One batched update for the whole purchase order, so receiving a PO is a
+      // single re-render / single set of activity entries.
+      setProducts((prev) =>
+        prev.map((p) => {
+          const it = valid.find((v) => v.productId === p.id);
+          return it
+            ? { ...p, quantity: p.quantity + it.quantity, updatedAt: now }
+            : p;
+        })
+      );
+      setTransactions((prev) => [
+        ...valid.map<Transaction>((it) => ({
+          id: newId("txn"),
+          productId: it.productId,
+          type: "stock-in",
+          quantity: it.quantity,
+          note: note ?? "Restock received (PO)",
+          userId: DEMO_USER.uid,
+          timestamp: now,
+        })),
+        ...prev,
+      ]);
+    },
+    []
+  );
+
   const resolveAlert = useCallback((key: string) => {
     setResolvedKeys((prev) => {
       const next = new Set(prev);
@@ -355,13 +416,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     alerts,
     stats,
     categories,
+    suppliers: SUPPLIERS,
+    restockPlan,
     getProduct,
+    getSupplier,
     getByBarcode,
     productTransactions,
     addProduct,
     updateProduct,
     deleteProduct,
     recordTransaction,
+    receiveStock,
     resolveAlert,
   };
 

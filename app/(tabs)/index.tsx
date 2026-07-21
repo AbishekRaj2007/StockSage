@@ -42,7 +42,7 @@ export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, signOut } = useAuth();
-  const { products, transactions, stats } = useData();
+  const { products, transactions, stats, restockPlan } = useData();
 
   const attention = useMemo(
     () =>
@@ -118,6 +118,31 @@ export default function DashboardScreen() {
           tone={colors.danger}
         />
       </View>
+
+      {/* Restock Copilot — the forecast turned into an action queue */}
+      <Pressable style={styles.section} onPress={() => router.push("/restock")}>
+        <View
+          style={[
+            styles.cta,
+            restockPlan.totalItems === 0 && styles.ctaCalm,
+          ]}
+        >
+          <View style={styles.ctaIcon}>
+            <Ionicons name="cart" size={22} color={colors.white} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.ctaTitle}>Restock Copilot</Text>
+            <Text style={styles.ctaSub}>
+              {restockPlan.totalItems === 0
+                ? "You're all stocked up — nothing to reorder"
+                : `${restockPlan.totalItems} item${
+                    restockPlan.totalItems === 1 ? "" : "s"
+                  } to reorder · est. ${compactCurrency(restockPlan.totalCost)}`}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={colors.white} />
+        </View>
+      </Pressable>
 
       {/* Needs attention (forecast-driven) */}
       <View style={styles.section}>
@@ -300,6 +325,29 @@ const styles = StyleSheet.create({
   statValue: { fontSize: font.h2, fontWeight: "800", color: colors.text },
   statLabel: { fontSize: font.tiny, color: colors.textMuted, marginTop: 2 },
   section: { paddingHorizontal: spacing.lg, marginTop: spacing.xl },
+  cta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    backgroundColor: colors.primary,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+  },
+  ctaCalm: { backgroundColor: colors.success },
+  ctaIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: radius.md,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  ctaTitle: { color: colors.white, fontSize: font.h3, fontWeight: "800" },
+  ctaSub: {
+    color: "rgba(255,255,255,0.9)",
+    fontSize: font.small,
+    marginTop: 2,
+  },
   link: { color: colors.primary, fontWeight: "700", fontSize: font.small },
   allGood: { flexDirection: "row", alignItems: "center", gap: spacing.md },
   allGoodText: { flex: 1, color: colors.textMuted, fontSize: font.body },
