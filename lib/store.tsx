@@ -30,6 +30,7 @@ import {
   URGENCY_WINDOW_DAYS,
 } from "./forecast";
 import { buildRestockPlan, RestockPlan } from "./restock";
+import { buildInsights, Insights } from "./insights";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -66,6 +67,8 @@ interface DataContextValue {
   suppliers: Supplier[];
   /** Forecast-driven reorder suggestions grouped into supplier purchase orders. */
   restockPlan: RestockPlan;
+  /** Profit, margin, top-performer and dead-stock analytics. */
+  insights: Insights;
   getProduct: (id: string) => EnrichedProduct | undefined;
   getSupplier: (id: string | null | undefined) => Supplier | undefined;
   getByBarcode: (barcode: string) => EnrichedProduct | undefined;
@@ -183,6 +186,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const restockPlan = useMemo(
     () => buildRestockPlan(enriched, SUPPLIERS, Date.now()),
     [enriched]
+  );
+
+  // Profit/margin/dead-stock analytics, recomputed from live products + sales.
+  const insights = useMemo(
+    () => buildInsights(enriched, transactions, Date.now()),
+    [enriched, transactions]
   );
 
   // Derived alerts (kept live rather than persisted, since there's no backend).
@@ -418,6 +427,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     categories,
     suppliers: SUPPLIERS,
     restockPlan,
+    insights,
     getProduct,
     getSupplier,
     getByBarcode,

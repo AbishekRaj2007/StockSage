@@ -56,6 +56,10 @@ const SEEDS: Seed[] = [
   { name: "Surf Excel 1kg", sku: "HOM-SRF-1", barcode: "8901234500086", category: "Home Care", quantity: 40, unit: "pcs", costPrice: 118, sellingPrice: 145, reorderThreshold: 12, supplierId: "sup_fmcg", dailyOut: 0.4 },
   { name: "Dettol Handwash 200ml", sku: "PC-DTL-200", barcode: "8901234500093", category: "Personal Care", quantity: 3, unit: "pcs", costPrice: 55, sellingPrice: 72, reorderThreshold: 10, supplierId: "sup_fmcg", dailyOut: 1.7 },
   { name: "Britannia Good Day 600g", sku: "SNK-BGD-600", barcode: "8901234500109", category: "Snacks", quantity: 18, unit: "packs", costPrice: 95, sellingPrice: 120, reorderThreshold: 10, supplierId: "sup_fmcg", dailyOut: 2.1 },
+  // High volume, razor-thin margin (~9.5%) — surfaces in Insights as a low-margin mover.
+  { name: "Fresh Bread Loaf 400g", sku: "BKY-BRD-400", barcode: null, category: "Bakery", quantity: 20, unit: "loaves", costPrice: 38, sellingPrice: 42, reorderThreshold: 15, supplierId: "sup_metro", dailyOut: 6.0 },
+  // Healthy margin but zero sales — surfaces in Insights as dead stock (capital frozen).
+  { name: "Festive Gift Hamper", sku: "GEN-HMP-01", barcode: null, category: "General", quantity: 18, unit: "boxes", costPrice: 450, sellingPrice: 599, reorderThreshold: 4, supplierId: "sup_metro", dailyOut: 0 },
 ];
 
 // A little deterministic jitter so generated history looks organic but stable.

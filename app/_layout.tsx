@@ -49,6 +49,10 @@ function RootNavigator() {
           options={{ headerShown: true, title: "Restock Copilot" }}
         />
         <Stack.Screen
+          name="insights"
+          options={{ headerShown: true, title: "Profit & Insights" }}
+        />
+        <Stack.Screen
           name="product/[id]"
           options={{ headerShown: true, title: "Product" }}
         />

@@ -81,21 +81,30 @@ export default function DashboardScreen() {
         </Pressable>
       </View>
 
-      {/* Hero value card */}
-      <View style={styles.hero}>
-        <View>
-          <Text style={styles.heroLabel}>Total stock value (at cost)</Text>
-          <Text style={styles.heroValue}>
-            {compactCurrency(stats.totalStockValue)}
-          </Text>
-          <Text style={styles.heroSub}>
-            Potential revenue {compactCurrency(stats.potentialRevenue)}
-          </Text>
+      {/* Hero value card — tap for the full profit breakdown */}
+      <Pressable onPress={() => router.push("/insights")}>
+        <View style={styles.hero}>
+          <View style={styles.heroTopRow}>
+            <View>
+              <Text style={styles.heroLabel}>Total stock value (at cost)</Text>
+              <Text style={styles.heroValue}>
+                {compactCurrency(stats.totalStockValue)}
+              </Text>
+              <Text style={styles.heroSub}>
+                Potential revenue {compactCurrency(stats.potentialRevenue)}
+              </Text>
+            </View>
+            <View style={styles.heroIcon}>
+              <Ionicons name="trending-up" size={26} color={colors.white} />
+            </View>
+          </View>
+          <View style={styles.heroLink}>
+            <Ionicons name="stats-chart" size={14} color="#CBD5E1" />
+            <Text style={styles.heroLinkText}>View profit & insights</Text>
+            <Ionicons name="chevron-forward" size={14} color="#CBD5E1" />
+          </View>
         </View>
-        <View style={styles.heroIcon}>
-          <Ionicons name="trending-up" size={26} color={colors.white} />
-        </View>
-      </View>
+      </Pressable>
 
       {/* Stat grid */}
       <View style={styles.statGrid}>
@@ -280,9 +289,26 @@ const styles = StyleSheet.create({
     backgroundColor: colors.navy,
     borderRadius: radius.xl,
     padding: spacing.xl,
+  },
+  heroTopRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  heroLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: spacing.lg,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.12)",
+  },
+  heroLinkText: {
+    flex: 1,
+    color: "#CBD5E1",
+    fontSize: font.small,
+    fontWeight: "700",
   },
   heroLabel: { color: "#94A3B8", fontSize: font.small, fontWeight: "600" },
   heroValue: {

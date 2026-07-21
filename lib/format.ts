@@ -12,6 +12,10 @@ export function compactCurrency(n: number): string {
   return "₹" + Math.round(n).toLocaleString("en-IN");
 }
 
+export function percent(frac: number, digits = 0): string {
+  return (frac * 100).toFixed(digits) + "%";
+}
+
 export function relativeTime(ts: number, now: number = Date.now()): string {
   const diff = now - ts;
   const min = Math.round(diff / 60000);
